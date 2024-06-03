@@ -16,6 +16,7 @@ from src.browser_based_agent.firecrawl.search import fc_search
 
 async def browser_based_agent_function(company_name):
     try:
+        print(f"Searching for {company_name}")
         response = await fc_search(company_name)
         return response
     except Exception as e:

@@ -61,7 +61,7 @@ def post_body():
 
 @app.route('/browser-based-agent', methods=['POST'])
 async def browser_based_agent():
-    data = request.json()
+    data = request.json or {}
     company_name = data.get('company_name')
     try:
         response = await browser_based_agent_function(company_name)
