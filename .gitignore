@@ -1,4 +1,19 @@
-.env
-local.py
-.venv
+# Ignore all __pycache__ directories
+__pycache__/
+
+# Ignore virtual environment directories
 venv
+.venv
+
+# Ignore Python bytecode files
+*.pyc
+*.pyo
+
+# Ignore environment variable files
+.env
+
+# Ignore logs folder
+logs
+
+# Ignore local python file
+local.py

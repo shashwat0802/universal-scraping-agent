@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import boto3
 import os
 from dotenv import load_dotenv
+from src.browser_based_agent.main import browser_based_agent_function
 
 app = Flask(__name__)
 
@@ -27,38 +28,39 @@ def index():
 @app.route('/get-image', methods=['GET'])
 def get_image():
     params = request.args.to_dict()
-    
-    # List all objects in the specified bucket
-    response = s3_client.list_objects_v2(Bucket=AWS_BUCKET_NAME)
-    
-    if 'Contents' in response:
-        # Get all the object keys (names)
-        image_names = [obj['Key'] for obj in response['Contents']]
-    else:
-        image_names = []
-
-    # Specific image key
     image_key = '1_acra.pdf'
-    image_url = f'{S3_BASE_URL}{image_key}'
-    
-    params['image_url'] = image_url
-    params['image_names'] = image_names
+    try:
+
+        s3_client.head_object(Bucket=AWS_BUCKET_NAME, Key=image_key)
+
+        image_url = f'{S3_BASE_URL}{image_key}'
+        params['image_url'] = image_url
+    except s3_client.exceptions.NoSuchKey:
+        params['error'] = 'Image not found'
     
     return jsonify(params)
 
 @app.route('/save-image', methods=['POST'])
 def post_body():
-    data = request.get_json()
-    placeholder_image_path = 'placeholder.jpg'
+    data = request.get_json() or {}
+    placeholder_image_path = 'logs/2_acra.pdf'
     if os.path.exists(placeholder_image_path):
-        s3_key = 'uploaded/placeholder.jpg' 
+        s3_key = '2_acra.pdf'
+        
         with open(placeholder_image_path, 'rb') as image_file:
             s3_client.upload_fileobj(image_file, AWS_BUCKET_NAME, s3_key)
+        
         uploaded_image_url = f'{S3_BASE_URL}{s3_key}'
+        
         data['uploaded_image_url'] = uploaded_image_url
     else:
         data['error'] = 'Placeholder image not found'
     return jsonify(data)
+
+@app.route('/browser-based-agent', methods=['POST'])
+def browser_based_agent():
+    text = browser_based_agent_function()
+    return jsonify({'message': text})
 
 if __name__ == '__main__':
     app.run(debug=True)
