@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 import boto3
 import os
+import asyncio
+import requests
 from dotenv import load_dotenv
 from src.browser_based_agent.main import browser_based_agent_function
 
@@ -58,9 +60,15 @@ def post_body():
     return jsonify(data)
 
 @app.route('/browser-based-agent', methods=['POST'])
-def browser_based_agent():
-    text = browser_based_agent_function()
-    return jsonify({'message': text})
+async def browser_based_agent():
+    data = request.json()
+    company_name = data.get('company_name')
+    try:
+        response = await browser_based_agent_function(company_name)
+        return jsonify(response)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify({'error': 'An error occurred'})
 
 if __name__ == '__main__':
     app.run(debug=True)

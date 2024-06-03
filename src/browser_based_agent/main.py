@@ -11,5 +11,13 @@
 # go the following pages and repeat the process
 # send all page_summary to openai again and ask for a website summary 
 # output should be in a json which will have image urls of all the pages and the page summary and website summary , the prime summary will have company services and products with exact names of products as well 
-def browser_based_agent_function():
-    return 'Hello, World!'
+import asyncio
+from src.browser_based_agent.firecrawl.search import fc_search
+
+async def browser_based_agent_function(company_name):
+    try:
+        response = await fc_search(company_name)
+        return response
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
