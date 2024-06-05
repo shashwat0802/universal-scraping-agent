@@ -18,6 +18,7 @@ load_dotenv()
 AWS_BUCKET_NAME = os.getenv('AWS_BUCKET_NAME')
 AWS_REGION = os.getenv('AWS_REGION')
 S3_BASE_URL = f'https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/'
+WEBHOOK_URL = "https://webhook.site/60baa5f4-e420-4cd5-8e94-47142be51392"
 
 # Initialize S3 client using the "wallex-sentinel" profile
 session = boto3.Session(profile_name='wallex-sentinel')
@@ -92,6 +93,10 @@ async def crawl_webhook():
                 'summary': summary
             })
         print(f'Final Response : {response}')
+        # Send the response to the webhook URL
+        webhook_response = requests.post(WEBHOOK_URL, json=response)
+        print(f"Webhook response status: {webhook_response.status_code}")
+
         return jsonify(response)
     except Exception as e:
         print(f"An error occurred: {e}")
