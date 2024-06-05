@@ -6,6 +6,8 @@ import requests
 from dotenv import load_dotenv
 from src.browser_based_agent.main import browser_based_agent_function
 from src.image_based_agent.main import scrape_website_using_image
+from src.firecrawl.search import take_screenshot
+from src.openai.actions import summarize_image
 
 app = Flask(__name__)
 
@@ -75,8 +77,25 @@ async def browser_based_agent():
 @app.route('/webhook' , methods=['POST'])
 async def crawl_webhook():
     data = request.json or {}
-    print(data)
-    return 'Hello world'
+    main_content = data.get('data')
+    response = []
+    try:
+        for value in main_content:
+            url = value['metadata']['sourceURL']
+            print(f"Taking Screenshot of URL: {url}")
+            uuid = await take_screenshot(url)
+            image_path = f"logs/{uuid}.png"
+            summary = await summarize_image(image_path)
+            response.append({
+                'url': url,
+                'image_uuid': uuid,
+                'summary': summary
+            })
+        print(f'Final Response : {response}')
+        return jsonify(response)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify({'error': 'An error occurred'})    
 
 if __name__ == '__main__':
     app.run(debug=True)
