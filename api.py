@@ -71,6 +71,12 @@ async def browser_based_agent():
     except Exception as e:
         print(f"An error occurred: {e}")
         return jsonify({'error': 'An error occurred'})
+    
+@app.route('/webhook' , methods=['POST'])
+async def crawl_webhook():
+    data = request.json or {}
+    print(data)
+    return 'Hello world'
 
 if __name__ == '__main__':
     app.run(debug=True)

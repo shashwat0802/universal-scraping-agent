@@ -8,11 +8,11 @@ load_dotenv()
 
 app = FirecrawlApp(api_key=os.getenv('FC_API_KEY'))
 
-async def fc_crawl(company_name):
-    query = f"Crawling website for URL : {company_name}"
+async def fc_crawl(url):
+    query = f"Crawling website for URL : {url}"
     print(f"Query : {query}")
     try:
-        crawl_result = app.crawl_url('mendable.ai', params={
+        crawl_result = app.crawl_url(url, params={
             'crawlerOptions': {
                 'limit': 3
             },
