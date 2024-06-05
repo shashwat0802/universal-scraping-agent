@@ -2,7 +2,7 @@ import openai
 import base64
 import os
 import asyncio
-from src.openai.prompts import summarize_image_prompt , summarize_image_prompt2
+from src.openai.prompts import summarize_image_prompt , summarize_image_prompt2 , final_summarize_all_page_prompt
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
@@ -13,7 +13,9 @@ async def summarize_image(image_path):
         
         response = openai.chat.completions.create(
             model="gpt-4o",
-            messages=[{
+            response_format={ "type": "json_object" },
+            messages=[
+            {
                 "role": "user",
                 "content":[
                 {
@@ -31,7 +33,42 @@ async def summarize_image(image_path):
         )
         print(response.usage)
         summary = response.choices[0].message.content
+        print(f'page summary : {summary}')
         return summary
     except Exception as e:
         print(f'Error in Open AI summarize image : {e}')
+        return None
+    
+async def summarize_complete_website(final_response):
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-4o",
+            response_format={ "type": "json_object" },
+            messages=[
+                {
+                    "role": "system",
+                    "content":[
+                    {
+                        "type": "text",
+                        "text": final_summarize_all_page_prompt
+                    },
+                    ]
+                },
+                {
+                    "role": "user",
+                    "content":[
+                    {
+                        "type": "text",
+                        "text": str(final_response)
+                    },
+                    ]
+                }
+            ]
+        )
+        print(response.usage)
+        summary = response.choices[0].message.content
+        print(f'Complete summary : {summary}')
+        return summary
+    except Exception as e:
+        print(f'Error in Open AI summarize complete website : {e}')
         return None

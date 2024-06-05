@@ -14,7 +14,7 @@ async def fc_crawl(url):
     try:
         crawl_result = app.crawl_url(url, params={
             'crawlerOptions': {
-                'limit': 3
+                'limit': 5
             },
             'pageOptions': {
                 'onlyMainContent': False

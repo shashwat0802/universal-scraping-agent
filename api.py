@@ -5,9 +5,9 @@ import asyncio
 import requests
 from dotenv import load_dotenv
 from src.browser_based_agent.main import browser_based_agent_function
-from src.image_based_agent.main import scrape_website_using_image
+from src.image_based_agent.main import scrape_website_using_image 
 from src.firecrawl.search import take_screenshot
-from src.openai.actions import summarize_image
+from src.openai.actions import summarize_image , summarize_complete_website
 
 app = Flask(__name__)
 
@@ -79,7 +79,8 @@ async def browser_based_agent():
 async def crawl_webhook():
     data = request.json or {}
     main_content = data.get('data')
-    response = []
+    data_array = []
+    response = {}
     try:
         for value in main_content:
             url = value['metadata']['sourceURL']
@@ -87,13 +88,17 @@ async def crawl_webhook():
             uuid = await take_screenshot(url)
             image_path = f"logs/{uuid}.png"
             summary = await summarize_image(image_path)
-            response.append({
+            print(f'summary : {summary}')
+            obj = {
                 'url': url,
                 'image_uuid': uuid,
-                'summary': summary
-            })
-        print(f'Final Response : {response}')
-        # Send the response to the webhook URL
+                'page_details':summary
+            }
+            data_array.append(obj)
+
+        final_summary = await summarize_complete_website(data)
+        response['company_details'] = final_summary
+        response['data'] = data_array
         webhook_response = requests.post(WEBHOOK_URL, json=response)
         print(f"Webhook response status: {webhook_response.status_code}")
 
