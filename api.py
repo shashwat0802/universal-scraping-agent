@@ -5,6 +5,7 @@ import asyncio
 import requests
 from dotenv import load_dotenv
 from src.browser_based_agent.main import browser_based_agent_function
+from src.image_based_agent.main import scrape_website_using_image
 
 app = Flask(__name__)
 
@@ -64,7 +65,8 @@ async def browser_based_agent():
     data = request.json or {}
     company_name = data.get('company_name')
     try:
-        response = await browser_based_agent_function(company_name)
+        # response = await browser_based_agent_function(company_name)
+        response = await scrape_website_using_image(company_name)
         return jsonify(response)
     except Exception as e:
         print(f"An error occurred: {e}")

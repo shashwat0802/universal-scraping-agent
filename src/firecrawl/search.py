@@ -29,19 +29,24 @@ async def fc_search(company_name):
         else:
             print("No search result found.")
         
-        return search_result
+        return search_result[0]
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
 
-async def take_screenshot(url , company_name):
+async def take_screenshot(url, file_name):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         page = await browser.new_page()
-        await page.goto(url , timeout=30000)
+        await page.goto(url, timeout=30000)
         
-        file_name = f"{company_name}.pdf"
-        await page.emulate_media(media="screen")
-        await page.pdf(path=f"logs/{file_name}")
+        file_name = f"{file_name}_fc_search.png"
+        await page.screenshot(path=f"logs/{file_name}", full_page=True)
         await browser.close()
+        
         print("Screenshot saved")
+
+
+async def save_data_to_s3(file_name):
+    print(f"Uploading {file_name} to S3")
+    
