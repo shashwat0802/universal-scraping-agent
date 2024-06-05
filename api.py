@@ -3,11 +3,16 @@ import boto3
 import os
 import asyncio
 import requests
+import logging
 from dotenv import load_dotenv
 from src.browser_based_agent.main import browser_based_agent_function
 from src.image_based_agent.main import scrape_website_using_image 
 from src.firecrawl.search import take_screenshot
 from src.openai.actions import summarize_image , summarize_complete_website
+from src.extract_sitemap.main import get_sitemap_urls
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -62,6 +67,14 @@ def post_body():
     else:
         data['error'] = 'Placeholder image not found'
     return jsonify(data)
+
+@app.route('/get-site-map', methods=['POST'])
+def get_site_map():
+    data = request.json or {}
+    website_url = data.get('website_url')
+    website_url = f'{website_url}/sitemap.xml'
+    urls = asyncio.run(get_sitemap_urls(website_url))
+    return jsonify(urls)
 
 @app.route('/browser-based-agent', methods=['POST'])
 async def browser_based_agent():

@@ -9,3 +9,6 @@ urlextract==1.8.0
 requests~=2.31.0
 asgiref==3.8.1
 uuid==1.30
+aiohttp==3.9.5
+beautifulsoup4==4.12.2
+lxml==5.2.2
