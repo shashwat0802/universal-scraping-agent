@@ -1,12 +1,3 @@
-summarize_image_prompt =  """
-                As an onboarding analyst for a fintech company specializing in payments, you must review Website Secreenshot.
-                Please summarize:
-                    - Company description
-                    - Every product or service they are offering
-                    - Owner of the company
-                    - Company established date
-                """
-
 summarize_image_prompt2 =  """
                 As an onboarding analyst for a fintech company specializing in payments, you must review Website Screenshot.
                 Output the Information in pure JSON format. The JSON should contain only the structured data extracted from the text, with no additional commentary, explanations, or extraneous information. Only output JSON fields that are defined if no value found then remove it from the output.

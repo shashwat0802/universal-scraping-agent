@@ -67,6 +67,8 @@ async def save_data_to_s3(file_name):
             with open(image_path, 'rb') as image_file:
                 s3_client.upload_fileobj(image_file, AWS_BUCKET_NAME, s3_key)
             uploaded_image_url = f'{S3_BASE_URL}{s3_key}'
+            os.remove(image_path)
+            print(f"Deleted local file {file_name} after upload")
         return uploaded_image_url
     except Exception as e:
         print(f"An error occurred: {e}")

@@ -54,10 +54,10 @@ def get_image():
 
 @app.route('/save-image', methods=['POST'])
 def post_body():
-    data = request.get_json() or {}
-    placeholder_image_path = 'logs/2_acra.pdf'
+    data = {}
+    placeholder_image_path = 'logs/fc.png'
     if os.path.exists(placeholder_image_path):
-        s3_key = '2_acra.pdf'
+        s3_key = 'fc.png'
         
         with open(placeholder_image_path, 'rb') as image_file:
             s3_client.upload_fileobj(image_file, AWS_BUCKET_NAME, s3_key)
@@ -68,6 +68,17 @@ def post_body():
     else:
         data['error'] = 'Placeholder image not found'
     return jsonify(data)
+
+@app.route('/summarize-image', methods=['POST'])
+async def summarize_image_route():
+    data = request.json or {}
+    image_url = data.get('image_url')
+    try:
+        summary = await summarize_image(image_url)
+        return jsonify(summary)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify({'error': 'An error occurred'})
 
 @app.route('/independent-search', methods=['POST'])
 async def independent_search_analysis():

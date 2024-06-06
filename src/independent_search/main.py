@@ -11,9 +11,9 @@ async def independent_search(website_url):
         #     urls = urls[:5]
         filtered_urls = await filter_links(urls)
         print(f'Filtered URLs: {filtered_urls}')
-        # for url in urls:
-            # await take_screenshot(url)
-        return json.loads(filtered_urls)
+        filtered_urls =  json.loads(filtered_urls)
+        for url in filtered_urls:
+            await take_screenshot(url)
     except Exception as e:
         print(f'Error in Independent search: {e}')
         return None
