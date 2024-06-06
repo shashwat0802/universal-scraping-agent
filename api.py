@@ -7,8 +7,8 @@ import logging
 from dotenv import load_dotenv
 from src.browser_based_agent.main import browser_based_agent_function
 from src.image_based_agent.main import scrape_website_using_image 
-from src.firecrawl.search import take_screenshot
-from src.openai.actions import summarize_image , summarize_complete_website
+from src.utils.search import take_screenshot
+from src.openai.actions import summarize_image , summarize_complete_website , testing_prompt
 from src.extract_sitemap.main import get_sitemap_urls
 
 logging.basicConfig(level=logging.INFO)
@@ -68,12 +68,14 @@ def post_body():
         data['error'] = 'Placeholder image not found'
     return jsonify(data)
 
-@app.route('/get-site-map', methods=['POST'])
+@app.route('/independent-search', methods=['POST'])
 def get_site_map():
     data = request.json or {}
     website_url = data.get('website_url')
     website_url = f'{website_url}/sitemap.xml'
     urls = asyncio.run(get_sitemap_urls(website_url))
+    if len(urls) > 5:
+        urls = urls[:5]
     return jsonify(urls)
 
 @app.route('/browser-based-agent', methods=['POST'])
@@ -87,6 +89,11 @@ async def browser_based_agent():
     except Exception as e:
         print(f"An error occurred: {e}")
         return jsonify({'error': 'An error occurred'})
+    
+@app.route('/test', methods=['GET'])
+async def test():
+    response  = await testing_prompt()
+    return response
     
 @app.route('/webhook' , methods=['POST'])
 async def crawl_webhook():

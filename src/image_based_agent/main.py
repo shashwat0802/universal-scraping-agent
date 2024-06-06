@@ -1,6 +1,6 @@
 import asyncio
-from src.firecrawl.search import fc_search 
-from src.firecrawl.crawl import fc_crawl 
+from src.utils.search import fc_search 
+from src.utils.crawl import fc_crawl 
 from src.openai.actions import summarize_image
 
 async def scrape_website_using_image(company_name):
