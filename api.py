@@ -8,8 +8,9 @@ from dotenv import load_dotenv
 from src.browser_based_agent.main import browser_based_agent_function
 from src.image_based_agent.main import scrape_website_using_image 
 from src.utils.search import take_screenshot
-from src.openai.actions import summarize_image , summarize_complete_website , testing_prompt
+from src.openai.actions import summarize_image , summarize_complete_website 
 from src.extract_sitemap.main import get_sitemap_urls
+from src.independent_search.main import independent_search
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -69,14 +70,17 @@ def post_body():
     return jsonify(data)
 
 @app.route('/independent-search', methods=['POST'])
-def get_site_map():
+async def independent_search_analysis():
     data = request.json or {}
     website_url = data.get('website_url')
-    website_url = f'{website_url}/sitemap.xml'
-    urls = asyncio.run(get_sitemap_urls(website_url))
-    if len(urls) > 5:
-        urls = urls[:5]
-    return jsonify(urls)
+    website_url = f"{website_url}/sitemap.xml"
+    print(f"Analyzing website: {website_url}")
+    try:
+        urls = await independent_search(website_url)
+        return jsonify(urls)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify({'error': 'An error occurred'})
 
 @app.route('/browser-based-agent', methods=['POST'])
 async def browser_based_agent():
@@ -89,11 +93,6 @@ async def browser_based_agent():
     except Exception as e:
         print(f"An error occurred: {e}")
         return jsonify({'error': 'An error occurred'})
-    
-@app.route('/test', methods=['GET'])
-async def test():
-    response  = await testing_prompt()
-    return response
     
 @app.route('/webhook' , methods=['POST'])
 async def crawl_webhook():
@@ -128,4 +127,4 @@ async def crawl_webhook():
         return jsonify({'error': 'An error occurred'})    
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=8000 ,debug=True)

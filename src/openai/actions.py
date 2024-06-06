@@ -2,7 +2,7 @@ import openai
 import base64
 import os
 import asyncio
-from src.openai.prompts import summarize_image_prompt , summarize_image_prompt2 , final_summarize_all_page_prompt , final_prompt
+from src.openai.prompts import filter_links_prompt , summarize_image_prompt2 , final_summarize_all_page_prompt
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
@@ -73,25 +73,36 @@ async def summarize_complete_website(final_response):
         print(f'Error in Open AI summarize complete website : {e}')
         return None
     
-async def testing_prompt():
+async def filter_links(urls):
+    urls_string = "\n".join(urls)
     try:
         response = openai.chat.completions.create(
             model="gpt-4o",
+            response_format={ "type": "json_object" },
             messages=[
                 {
                     "role": "system",
                     "content":[
                     {
                         "type": "text",
-                        "text": final_prompt
+                        "text": filter_links_prompt
+                    },
+                    ]
+                },
+                {
+                    "role": "user",
+                    "content":[
+                    {
+                        "type": "text",
+                        "text": urls_string
                     },
                     ]
                 },
             ]
         )
         print(response.usage)
-        summary = response.choices[0].message.content
-        return summary
+        urls = response.choices[0].message.content
+        return urls
     except Exception as e:
         print(f'Error in Open AI summarize complete website : {e}')
         return None
