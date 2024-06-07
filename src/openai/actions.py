@@ -112,35 +112,39 @@ async def filter_links(urls):
         print(f'Error in Open AI summarize complete website : {e}')
         return None
     
-async def summarize_all_image(image_path):
+async def summarize_all_images(image_paths):
     try:
-        with open(image_path, "rb") as image_file:
-            base64_image = base64.b64encode(image_file.read()).decode('utf-8')
+        images = []
+        for image_path in image_paths:
+            images.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": image_path
+                }
+            })
+        
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": final_summarize_all_page_prompt
+                    }
+                ] + images
+            }
+        ]
         
         response = openai.chat.completions.create(
             model="gpt-4o",
-            response_format={ "type": "json_object" },
-            messages=[
-            {
-                "role": "user",
-                "content":[
-                {
-                    "type": "text",
-                    "text": summarize_image_prompt2
-                },
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpeg;base64,{base64_image}"
-                    }
-                }
-                ]
-            }]
+            response_format={"type": "json_object" },
+            messages=messages
         )
         print(response.usage)
-        summary = response.choices[0].message.content
-        print(f'page summary : {summary}')
-        return summary
+        print(response)
+        final_response = response.choices[0].message.content
+        print(f'Final Response : {final_response}')
+        return final_response
     except Exception as e:
-        print(f'Error in Open AI summarize image : {e}')
+        print(f'Error in Open AI summarize images: {e}')
         return None

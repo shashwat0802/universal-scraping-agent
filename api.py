@@ -87,8 +87,8 @@ async def independent_search_analysis():
     website_url = f"{website_url}/sitemap.xml"
     print(f"Analyzing website: {website_url}")
     try:
-        urls = await independent_search(website_url)
-        return jsonify(urls)
+        response = await independent_search(website_url)
+        return response
     except Exception as e:
         print(f"An error occurred: {e}")
         return jsonify({'error': 'An error occurred'})

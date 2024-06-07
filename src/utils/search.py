@@ -63,13 +63,18 @@ async def save_data_to_s3(file_name):
         print(f"Uploading {file_name} to S3")
         image_path = f'logs/{file_name}'
         if os.path.exists(image_path):
-            s3_key = '2_acra.pdf'
+            s3_key = file_name
             with open(image_path, 'rb') as image_file:
                 s3_client.upload_fileobj(image_file, AWS_BUCKET_NAME, s3_key)
-            uploaded_image_url = f'{S3_BASE_URL}{s3_key}'
+
+            signed_url = s3_client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': AWS_BUCKET_NAME, 'Key': s3_key},
+                ExpiresIn=3600 
+            )
             os.remove(image_path)
             print(f"Deleted local file {file_name} after upload")
-        return uploaded_image_url
+        return signed_url
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
